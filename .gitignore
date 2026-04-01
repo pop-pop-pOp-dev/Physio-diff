@@ -16,3 +16,6 @@ outputs_*/
 *.npz
 *.npy
 *.csv
+*.pyc
+**/__pycache__/
+*.png
