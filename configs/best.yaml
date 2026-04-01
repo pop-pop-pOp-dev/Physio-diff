@@ -1,0 +1,151 @@
+project:
+  seed: 42
+  device: cuda
+  output_dir: outputs
+
+data:
+  dataset_name: stress_predict
+  root_dir: ./data/WESAD
+  cache_dir: ./outputs/cache
+  processed_label_path: ./data/Stress-Predict/Processed_data/Improved_All_Combined_hr_rsp_binary.csv
+  subjects: []
+  split_strategy: subject
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+  train_subjects:
+    - S2
+    - S3
+    - S4
+    - S5
+    - S6
+    - S7
+    - S8
+    - S9
+    - S10
+    - S11
+    - S13
+  val_subjects:
+    - S14
+    - S15
+  test_subjects:
+    - S16
+    - S17
+  channels:
+    - eda
+    - bvp
+  include_acc: true
+  target_fs: 64
+  window_length: 640
+  window_stride: 160
+  zscore: true
+  clip_mode: soft
+  clip_value: 5.0
+
+diffusion:
+  timesteps: 1000
+  schedule: cosine
+  beta_start: 0.0001
+  beta_end: 0.02
+
+model:
+  model_type: mechanistic
+  in_channels: 3
+  hidden_channels: 96
+  depth: 30
+  kernel_size: 5
+  dilation_cycle: 10
+  embedding_dim: 128
+  num_classes: 2
+  dropout: 0.1
+
+text:
+  encoder_type: minilm
+  minilm_model_name_or_path: ../models/text-encoders/sentence-transformers__all-MiniLM-L6-v2
+  bge_model_name_or_path: ../models/text-encoders/BAAI__bge-small-en-v1.5
+  trainable_pretrained: false
+  local_files_only: true
+  max_length: 128
+  vocab_size: 4096
+  hidden_dim: 128
+  dropout: 0.1
+
+loss:
+  w_simple: 1.0
+  w_kin_start: 0.0
+  w_kin_end: 0.0005
+  w_freq_start: 0.0
+  w_freq_end: 0.0005
+  warmup_epochs: 20
+  # Ramp classification guidance to avoid destabilizing early diffusion training.
+  w_cls_start: 0.0
+  w_cls_end: 0.5
+  w_proto: 0.4
+  w_embed_margin: 0.05
+  embed_margin: 1.0
+  w_feat: 0.1
+  w_domain: 0.2
+  w_mech: 0.2
+  w_consistency: 0.15
+  w_text_proto: 0.15
+  w_cycle: 0.15
+  w_artifact_text: 0.1
+  w_semantic_align: 0.15
+  proto_temperature: 0.2
+
+train:
+  epochs: 120
+  batch_size: 16
+  lr: 0.0001
+  lr_min: 0.000001
+  lr_warmup_epochs: 5
+  num_workers: 4
+  grad_clip: 1.0
+  # EMA improves sampling stability across seeds.
+  use_ema: true
+  ema_decay: 0.999
+  # Classifier-free guidance training: randomly drop condition labels.
+  # 0.1 is a common default; keep >0 to enable CFG at sampling.
+  cond_drop_prob: 0.1
+  anchor_labels: true
+  anchor_classifier_epochs: 12
+  anchor_classifier_lr: 0.001
+  x0_constraint_mode: soft
+  x0_constraint_value: 10.0
+  domain_generalization: true
+  num_domains: 16
+  dg_grl_lambda: 1.0
+  artifact_aware: true
+  artifact_corruptions: [motion, burst, spike_dropout, baseline_wander, time_jitter]
+  artifact_severity_start: 0.1
+  artifact_severity_end: 1.0
+  use_language_conditioning: true
+  use_text_prototypes: true
+  use_signal_text_cycle: true
+  use_semantic_alignment: true
+  use_artifact_text_conditioning: true
+  log_every: 5
+  save_every: 1
+  weighted_sampling: true
+  early_stop: false
+  early_stop_patience: 5
+  early_stop_min_delta: 0.001
+
+eval:
+  classifier_epochs: 30
+  classifier_lr: 0.001
+  noise_acc_std: 0.5
+  synth_samples_per_class: 1000
+  unnormalize: true
+  gen_batch_size: 50
+  # Classifier-free guidance scale during sampling (>=1.0).
+  # Try 1.5–3.0 for stronger class fidelity (may trade off diversity).
+  cfg_scale: 2.0
+  # Stabilize CFG sampling (prevents blow-ups when cfg_scale>1).
+  cfg_rescale: true
+  # Dynamic x0 clipping (quantile in (0,1)); reduces saturation after postprocess clipping.
+  x0_clip_quantile: 0.995
+  # Additional clamp on x_t during sampling to avoid divergence.
+  x_t_clip: 20.0
+  use_existing_model: true
+  checkpoint_path: ""

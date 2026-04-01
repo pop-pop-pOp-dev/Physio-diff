@@ -1,0 +1,25 @@
+project:
+  device: cuda
+
+data:
+  dataset_name: wesad
+  root_dir: ./data/WESAD
+  cache_dir: ./outputs/cache_wesad_source
+  processed_label_path: ""
+  force_rebuild_cache: true
+  subjects: []
+  split_strategy: subject
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+  train_subjects: [S01, S02, S03, S04, S05, S06, S07, S08, S09, S10, S11, S12, S13, S14, S15, S16, S17, S18, S19, S20, S21, S22, S23, S24, S25, S26, S27]
+  val_subjects: [S28, S29, S30, S31]
+  test_subjects: [S32, S33, S34, S35]
+  channels: [eda, bvp]
+  include_acc: true
+  target_fs: 64
+  window_length: 640
+  window_stride: 160
+  zscore: true
+  clip_mode: soft
+  clip_value: 5.0

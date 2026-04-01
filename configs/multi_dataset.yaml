@@ -1,0 +1,92 @@
+project:
+  seed: 42
+  device: cuda
+  output_dir: outputs/multi_dataset
+
+data:
+  dataset_name: stress_predict
+  multi_dataset_configs:
+    - configs/best_improved.yaml
+    - configs/swell_kw.yaml
+    - configs/case.yaml
+    - configs/ubfc_phys.yaml
+    - configs/mahnob_hci.yaml
+    - configs/stress_predict.yaml
+  root_dir: ./data/WESAD
+  cache_dir: ./outputs/cache
+  processed_label_path: ./data/Stress-Predict/Processed_data/Improved_All_Combined_hr_rsp_binary.csv
+  subjects: []
+  split_strategy: groupkfold
+  cv_n_splits: 5
+  cv_fold_index: 0
+  val_subject_count: 1
+  channels: [eda, bvp]
+  include_acc: true
+  target_fs: 64
+  window_length: 640
+  window_stride: 160
+  zscore: true
+  clip_mode: soft
+  clip_value: 5.0
+
+model:
+  model_type: mechanistic
+  in_channels: 3
+  hidden_channels: 96
+  depth: 30
+  kernel_size: 5
+  dilation_cycle: 10
+  embedding_dim: 128
+  num_classes: 2
+  dropout: 0.1
+
+diffusion:
+  timesteps: 1000
+  schedule: cosine
+  beta_start: 0.0001
+  beta_end: 0.02
+
+loss:
+  w_simple: 1.0
+  w_kin_start: 0.0
+  w_kin_end: 0.0005
+  w_freq_start: 0.0
+  w_freq_end: 0.0005
+  warmup_epochs: 20
+  w_cls_start: 0.0
+  w_cls_end: 0.8
+  w_proto: 0.4
+  w_embed_margin: 0.05
+  w_feat: 0.1
+  w_domain: 0.2
+  w_mech: 0.2
+  w_consistency: 0.15
+
+train:
+  epochs: 120
+  batch_size: 16
+  lr: 0.0001
+  num_workers: 4
+  grad_clip: 1.0
+  use_ema: true
+  ema_decay: 0.999
+  cond_drop_prob: 0.2
+  anchor_labels: true
+  domain_generalization: true
+  dg_grl_lambda: 1.0
+  artifact_aware: true
+  log_every: 5
+  save_every: 1
+  weighted_sampling: true
+
+eval:
+  classifier_epochs: 30
+  classifier_lr: 0.001
+  noise_acc_std: 0.5
+  synth_samples_per_class: 1000
+  gen_batch_size: 50
+  cfg_scale: 2.5
+  cfg_rescale: true
+  x0_clip_quantile: 0.995
+  x_t_clip: 20.0
+  use_existing_model: false

@@ -1,0 +1,21 @@
+project:
+  device: cuda
+
+data:
+  dataset_name: case
+  root_dir: ./data/CASE
+  cache_dir: ./outputs/cache_case_source
+  processed_label_path: ""
+  subjects: []
+  split_strategy: groupkfold
+  cv_n_splits: 5
+  cv_fold_index: 0
+  val_subject_count: 1
+  channels: [eda, bvp]
+  include_acc: true
+  target_fs: 64
+  window_length: 640
+  window_stride: 160
+  zscore: true
+  clip_mode: soft
+  clip_value: 5.0

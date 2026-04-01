@@ -1,0 +1,59 @@
+project:
+  seed: 0
+  device: cuda
+  output_dir: experiments/cross_dataset/outputs
+
+data:
+  dataset_name: stress_predict
+  root_dir: ./data/Stress-Predict
+  cache_dir: ./outputs/cache_stress_predict
+  processed_label_path: ./data/Stress-Predict/Processed_data/Improved_All_Combined_hr_rsp_binary.csv
+  subjects: []
+  split_strategy: subject
+  train_subjects: [S01, S02, S03, S04, S05, S06, S07, S08, S09, S10, S11, S12, S13, S14, S15, S16, S17, S18, S19, S20, S21, S22, S23, S24, S25, S26, S27, S28]
+  val_subjects: [S29, S30, S31, S32]
+  test_subjects: [S33, S34, S35]
+  channels: [eda, bvp]
+  include_acc: true
+  target_fs: 64
+  window_length: 640
+  window_stride: 160
+  zscore: true
+  clip_mode: soft
+  clip_value: 5.0
+
+model:
+  hidden_channels: 64
+  depth: 4
+  kernel_size: 3
+  dilation_cycle: 4
+  embedding_dim: 32
+  num_classes: 2
+  dropout: 0.1
+
+diffusion:
+  timesteps: 1000
+  schedule: cosine
+  beta_start: 1.0e-4
+  beta_end: 0.02
+
+train:
+  batch_size: 64
+  num_workers: 8
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 4
+  use_amp: true
+  amp_dtype: fp16
+  epochs: 120
+  lr: 1.0e-4
+  grad_clip: 1.0
+  ema_decay: 0.999
+
+eval:
+  synth_samples_per_class: 1000
+  classifier_epochs: 30
+  classifier_lr: 0.001
+  classifier_batch: 64
+  noise_acc_std: 0.5
+  denoise_window: 9

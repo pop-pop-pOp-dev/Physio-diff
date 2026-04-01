@@ -1,0 +1,13 @@
+numpy>=1.23
+scipy>=1.10
+scikit-learn>=1.2
+matplotlib>=3.7
+PyYAML>=6.0
+tqdm>=4.66
+tensorboard>=2.14
+
+# PyTorch is required for training/evaluation (TSTR classifier and diffusion).
+# Install the build appropriate for your CUDA/CPU setup:
+#   https://pytorch.org/get-started/locally/
+# Example (CPU-only):
+#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu

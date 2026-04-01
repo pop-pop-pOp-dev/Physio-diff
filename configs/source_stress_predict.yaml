@@ -1,0 +1,24 @@
+project:
+  device: cuda
+
+data:
+  dataset_name: stress_predict
+  root_dir: ./data/Stress-Predict
+  cache_dir: ./outputs/cache_stress_predict_source
+  processed_label_path: ./data/Stress-Predict/Processed_data/Improved_All_Combined_hr_rsp_binary.csv
+  subjects: []
+  split_strategy: random
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+  train_subjects: []
+  val_subjects: []
+  test_subjects: []
+  channels: [eda, bvp]
+  include_acc: true
+  target_fs: 64
+  window_length: 640
+  window_stride: 160
+  zscore: true
+  clip_mode: soft
+  clip_value: 5.0

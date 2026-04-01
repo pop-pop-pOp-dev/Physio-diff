@@ -1,0 +1,147 @@
+project:
+  seed: 42
+  device: cuda
+  output_dir: outputs_physiounet_main
+
+data:
+  dataset_name: wesad
+  root_dir: ./data/WESAD
+  cache_dir: ./outputs/cache_wesad_main
+  processed_label_path: ""
+  subjects: []
+  split_strategy: random
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+  train_subjects: []
+  val_subjects: []
+  test_subjects: []
+  channels:
+    - eda
+    - bvp
+  include_acc: true
+  target_fs: 64
+  window_length: 640
+  window_stride: 160
+  zscore: true
+  clip_mode: soft
+  clip_value: 5.0
+
+diffusion:
+  timesteps: 1000
+  schedule: cosine
+  beta_start: 0.0001
+  beta_end: 0.02
+
+model:
+  model_type: standard
+  in_channels: 3
+  hidden_channels: 128
+  depth: 30
+  kernel_size: 5
+  dilation_cycle: 10
+  embedding_dim: 128
+  num_classes: 2
+  dropout: 0.05
+  denoiser_type: physio_unet
+  conditioning_mode: adagn
+  use_condition_tokens: true
+  band_split_mode: multires
+  branch_hidden_multiplier: 2.5
+  patch_size: 8
+  d_model: 256
+  nhead: 8
+  num_layers: 6
+  mlp_ratio: 4.0
+
+text:
+  encoder_type: minilm
+  minilm_model_name_or_path: ../models/text-encoders/sentence-transformers__all-MiniLM-L6-v2
+  bge_model_name_or_path: ../models/text-encoders/BAAI__bge-small-en-v1.5
+  trainable_pretrained: false
+  local_files_only: true
+  max_length: 128
+  vocab_size: 4096
+  hidden_dim: 128
+  dropout: 0.1
+
+loss:
+  w_simple: 1.0
+  w_kin_start: 0.0
+  w_kin_end: 0.0003
+  w_freq_start: 0.0
+  w_freq_end: 0.0005
+  warmup_epochs: 12
+  w_cls_start: 0.0
+  w_cls_end: 0.0
+  w_proto: 0.0
+  w_embed_margin: 0.0
+  embed_margin: 1.0
+  w_feat: 0.0
+  w_domain: 0.0
+  w_mech: 0.0
+  w_consistency: 0.0
+  w_text_proto: 0.0
+  w_cycle: 0.0
+  w_artifact_text: 0.0
+  w_semantic_align: 0.0
+  proto_temperature: 0.2
+  p2_gamma: 0.5
+  p2_k: 1.0
+
+train:
+  training_recipe: main_competitive
+  epochs: 180
+  batch_size: 16
+  lr: 0.00008
+  lr_min: 0.000001
+  lr_warmup_epochs: 5
+  num_workers: 8
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 4
+  use_amp: true
+  amp_dtype: fp16
+  grad_clip: 1.0
+  use_ema: true
+  ema_decay: 0.9995
+  cond_drop_prob: 0.10
+  anchor_labels: false
+  enable_aux_classifier: false
+  x0_constraint_mode: soft
+  x0_constraint_value: 8.0
+  domain_generalization: false
+  enable_domain_disc: false
+  num_domains: 16
+  dg_grl_lambda: 1.0
+  artifact_aware: false
+  artifact_corruptions: [motion, burst, spike_dropout, baseline_wander, time_jitter]
+  artifact_severity_start: 0.1
+  artifact_severity_end: 1.0
+  use_language_conditioning: true
+  use_text_prototypes: false
+  use_signal_text_cycle: false
+  use_semantic_alignment: false
+  use_artifact_text_conditioning: false
+  enable_text_modules: true
+  enable_mechanistic_branch: false
+  log_every: 20
+  save_every: 1
+  weighted_sampling: true
+  early_stop: true
+  early_stop_patience: 20
+  early_stop_min_delta: 0.0005
+
+eval:
+  classifier_epochs: 30
+  classifier_lr: 0.001
+  noise_acc_std: 0.5
+  synth_samples_per_class: 1000
+  unnormalize: true
+  gen_batch_size: 50
+  cfg_scale: 2.2
+  cfg_rescale: true
+  x0_clip_quantile: 0.99
+  x_t_clip: 16.0
+  use_existing_model: false
+  checkpoint_path: ""
