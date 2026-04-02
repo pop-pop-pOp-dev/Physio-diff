@@ -447,6 +447,13 @@ def train(cfg: Dict) -> Tuple[PhysioDiffusion, str]:
         clip_value=float(cfg["data"].get("clip_value", 5.0)),
         prebuilt_cache_path=cfg["data"].get("prebuilt_cache_path"),
         force_rebuild=bool(cfg["data"].get("force_rebuild_cache", False)),
+        drop_ambiguous_windows=bool(cfg["data"].get("drop_ambiguous_windows", False)),
+        label_purity_threshold=float(cfg["data"].get("label_purity_threshold", 0.8)),
+        window_label_mode=str(cfg["data"].get("window_label_mode", "majority")),
+        label_center_ratio=float(cfg["data"].get("label_center_ratio", 0.5)),
+        positive_labels=cfg["data"].get("positive_labels"),
+        negative_labels=cfg["data"].get("negative_labels"),
+        ignore_labels=cfg["data"].get("ignore_labels"),
     )
     dataset = WESADDataset(cache_path)
     dataset.return_index = True
@@ -556,6 +563,9 @@ def train(cfg: Dict) -> Tuple[PhysioDiffusion, str]:
         "val_loss": [],
         "l_kin": [],
         "l_freq": [],
+        "l_cls": [],
+        "l_feat": [],
+        "l_embed": [],
         "l_proto": [],
         "l_cycle": [],
         "l_semantic": [],
@@ -620,6 +630,9 @@ def train(cfg: Dict) -> Tuple[PhysioDiffusion, str]:
         epoch_kin = []
         epoch_freq = []
         epoch_proto = []
+        epoch_cls = []
+        epoch_feat = []
+        epoch_embed = []
         epoch_cycle = []
         epoch_semantic = []
         epoch_artifact = []
@@ -803,6 +816,8 @@ def train(cfg: Dict) -> Tuple[PhysioDiffusion, str]:
                 writer.add_scalar("train/l_kin", l_kin.item(), epoch * 1000 + step)
                 writer.add_scalar("train/l_freq", l_freq.item(), epoch * 1000 + step)
                 writer.add_scalar("train/l_cls", l_cls.item(), epoch * 1000 + step)
+                writer.add_scalar("train/l_feat", feat_anchor.item(), epoch * 1000 + step)
+                writer.add_scalar("train/l_embed", l_embed.item(), epoch * 1000 + step)
                 writer.add_scalar("train/l_proto", l_proto.item(), epoch * 1000 + step)
                 writer.add_scalar("train/l_domain", l_domain.item(), epoch * 1000 + step)
                 writer.add_scalar("train/l_mech", l_mech.item(), epoch * 1000 + step)
@@ -814,14 +829,19 @@ def train(cfg: Dict) -> Tuple[PhysioDiffusion, str]:
                 print(
                     f"[Epoch {epoch} Step {step}] "
                     f"loss={loss.item():.4f} l_kin={l_kin.item():.4f} "
-                    f"l_freq={l_freq.item():.4f} l_proto={l_proto.item():.4f} "
-                    f"l_domain={l_domain.item():.4f} l_mech={l_mech.item():.4f} "
-                    f"l_cycle={l_cycle.item():.4f} l_sem={l_semantic.item():.4f}"
+                    f"l_freq={l_freq.item():.4f} l_cls={l_cls.item():.4f} "
+                    f"l_feat={feat_anchor.item():.4f} l_embed={l_embed.item():.4f} "
+                    f"l_proto={l_proto.item():.4f} l_domain={l_domain.item():.4f} "
+                    f"l_mech={l_mech.item():.4f} l_cycle={l_cycle.item():.4f} "
+                    f"l_sem={l_semantic.item():.4f}"
                 )
             epoch_losses.append(loss.item())
             epoch_kin.append(l_kin.item())
             epoch_freq.append(l_freq.item())
             epoch_proto.append(l_proto.item())
+            epoch_cls.append(l_cls.item())
+            epoch_feat.append(feat_anchor.item())
+            epoch_embed.append(l_embed.item())
             epoch_cycle.append(l_cycle.item())
             epoch_semantic.append(l_semantic.item())
             epoch_artifact.append(l_art_text.item())
@@ -972,6 +992,9 @@ def train(cfg: Dict) -> Tuple[PhysioDiffusion, str]:
         history["l_kin"].append(float(np.mean(epoch_kin)) if epoch_kin else 0.0)
         history["l_freq"].append(float(np.mean(epoch_freq)) if epoch_freq else 0.0)
         history["l_proto"].append(float(np.mean(epoch_proto)) if epoch_proto else 0.0)
+        history["l_cls"].append(float(np.mean(epoch_cls)) if epoch_cls else 0.0)
+        history["l_feat"].append(float(np.mean(epoch_feat)) if epoch_feat else 0.0)
+        history["l_embed"].append(float(np.mean(epoch_embed)) if epoch_embed else 0.0)
         history["l_cycle"].append(float(np.mean(epoch_cycle)) if epoch_cycle else 0.0)
         history["l_semantic"].append(float(np.mean(epoch_semantic)) if epoch_semantic else 0.0)
         history["l_artifact_text"].append(float(np.mean(epoch_artifact)) if epoch_artifact else 0.0)

@@ -99,7 +99,6 @@ def _label_for_method(name: str) -> str:
     labels = {
         "physio_diff": "Physio-Diff (Full-Stack)",
         "physio_diff_main": "Physio-Diff (Main)",
-        "physio_diff_patchdit_supp": "Physio-Diff (PatchDiT, Supp)",
         "physio_diff_legacy_fullstack": "Physio-Diff (Legacy Full-Stack)",
         "physio_diff_main_additive_cond": "Physio-Diff (Main, Additive Cond)",
         "physio_diff_main_no_multiband": "Physio-Diff (Main, No Multiband)",

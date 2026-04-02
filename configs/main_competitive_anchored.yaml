@@ -9,6 +9,13 @@ data:
   cache_dir: ./outputs/cache_wesad_main_anchored
   processed_label_path: ""
   force_rebuild_cache: true
+  drop_ambiguous_windows: true
+  window_label_mode: center_purity
+  label_center_ratio: 0.5
+  label_purity_threshold: 0.8
+  positive_labels: [1]
+  negative_labels: [0]
+  ignore_labels: []
   subjects: []
   split_strategy: subject
   train_ratio: 0.8

@@ -12,12 +12,14 @@ from src.data.datasets import WESADDataset, load_meta, make_dataloaders
 from src.data.wesad import build_dataset_cache, build_subject_windows
 from experiments.common.metrics import (
     cross_dataset_semantic_stability,
+    diversity_diagnostics,
     postprocess_synth,
     text_prototype_separability,
     robustness_eval,
     recovered_text_consistency,
     time_freq_metrics,
     tstr_eval,
+    tstr_strong_eval,
 )
 from src.models.mech_latent_diff import MechanisticPhysioDiffusion
 from src.models.physio_diff import PhysioDiffusion
@@ -216,6 +218,25 @@ def run(cfg):
     else:
         print("Training diffusion model...")
         model, cache_path = train_diffusion(cfg)
+        cache_path = build_dataset_cache(
+            root_dir=cfg["data"]["root_dir"],
+            cache_dir=cfg["data"]["cache_dir"],
+            subjects=cfg["data"]["subjects"],
+            channels=cfg["data"]["channels"],
+            include_acc=cfg["data"]["include_acc"],
+            target_fs=cfg["data"]["target_fs"],
+            window_length=cfg["data"]["window_length"],
+            stride=cfg["data"]["window_stride"],
+            zscore=cfg["data"]["zscore"],
+            processed_label_path=cfg["data"].get("processed_label_path"),
+            dataset_name=cfg["data"].get("dataset_name"),
+            clip_mode=cfg["data"].get("clip_mode", "hard"),
+            clip_value=float(cfg["data"].get("clip_value", 5.0)),
+            prebuilt_cache_path=cfg["data"].get("prebuilt_cache_path"),
+            force_rebuild=False,
+            drop_ambiguous_windows=bool(cfg["data"].get("drop_ambiguous_windows", False)),
+            label_purity_threshold=float(cfg["data"].get("label_purity_threshold", 0.8)),
+        )
         best_ckpt = os.path.join(cfg["project"]["output_dir"], "physio_diff_best.pt")
         if os.path.exists(best_ckpt):
             print(f"Loading best model from {best_ckpt}...")
@@ -374,6 +395,24 @@ def run(cfg):
     )
     acc, f1 = float(tstr["accuracy"]), float(tstr["f1"])
 
+    tstr_strong = None
+    if bool(cfg.get("eval", {}).get("run_strong_classifier_sanity", True)):
+        tstr_strong = tstr_strong_eval(
+            synth_x,
+            synth_y,
+            test_x_clamped,
+            splits["test"]["y"],
+            cfg,
+            device=device,
+        )
+    diversity = diversity_diagnostics(
+        synth_x,
+        synth_y,
+        test_x_clamped,
+        splits["test"]["y"],
+        device=device,
+    )
+
     tfm = time_freq_metrics(test_x_clamped, synth_x[: len(test_x_clamped)], cfg["data"]["target_fs"])
     language_metrics = {}
     if getattr(dataset, "physio_text", None) is not None and getattr(dataset, "y", None) is not None:
@@ -420,6 +459,8 @@ def run(cfg):
         time_freq=tfm,
         meta=meta,
         language_metrics=language_metrics,
+        diversity=diversity,
+        tstr_strong=tstr_strong,
     )
 
     # Robustness evaluation (fair, comparable across methods)
@@ -441,6 +482,8 @@ def run(cfg):
         meta=meta,
         robust=robust,
         language_metrics=language_metrics,
+        diversity=diversity,
+        tstr_strong=tstr_strong,
     )
 
 
@@ -598,6 +641,8 @@ def _save_physio_results(
     meta=None,
     robust=None,
     language_metrics=None,
+    diversity=None,
+    tstr_strong=None,
 ):
     import json
 
@@ -608,6 +653,10 @@ def _save_physio_results(
         "time_freq": time_freq or {},
         "language_metrics": language_metrics or {},
     }
+    if diversity is not None:
+        payload["diversity"] = diversity
+    if tstr_strong is not None:
+        payload["tstr_strong"] = tstr_strong
     if robust is not None:
         payload["robust"] = robust
     elif acc_noisy is not None:

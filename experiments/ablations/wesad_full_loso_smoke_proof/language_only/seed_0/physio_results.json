@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "dataset_name": "wesad",
+    "seed": 0,
+    "cfg_scale": 2.5,
+    "cond_drop_prob": 0.2,
+    "timesteps": 1000,
+    "sample_steps": null,
+    "sample_eta": 0.0,
+    "split_strategy": "loso",
+    "splits": {
+      "train": {
+        "num_windows": 43573,
+        "class_counts": {
+          "0": 20806,
+          "1": 22767
+        }
+      },
+      "test": {
+        "num_windows": 1300,
+        "class_counts": {
+          "0": 522,
+          "1": 778
+        }
+      }
+    },
+    "normalization_summary": {
+      "clip_mode": "soft",
+      "clip_value": 5.0,
+      "mean_clip_fraction_total": 0.003159228602957654,
+      "max_clip_fraction_total": 0.005602206160241875
+    }
+  },
+  "tstr": {
+    "accuracy": 0.5984615384615385,
+    "f1": 0.37439846005774785
+  },
+  "time_freq": {
+    "mae": 3.028428792953491,
+    "psd": 2.137474245411818e-06,
+    "lf_hf": 0.0,
+    "mmd_rbf": 0.9004645347595215,
+    "fid_like": 16904.488466719107
+  },
+  "language_metrics": {
+    "text_prototype_separability": 0.03626040087904024,
+    "semantic_stability": 0.3268548372577102,
+    "recovered_text_consistency": 0.9975579977035522
+  },
+  "robust": {
+    "noisy_acc": 0.5984615384615385,
+    "restored_acc": 0.5984615384615385,
+    "mean_noisy_acc": 0.5984615384615386,
+    "mean_restored_acc": 0.5984615384615386,
+    "corruptions": {
+      "gaussian": [
+        {
+          "severity": 0.5,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        },
+        {
+          "severity": 1.0,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        }
+      ],
+      "motion": [
+        {
+          "severity": 0.5,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        },
+        {
+          "severity": 1.0,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        }
+      ],
+      "burst": [
+        {
+          "severity": 0.5,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        },
+        {
+          "severity": 1.0,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        }
+      ],
+      "baseline_wander": [
+        {
+          "severity": 0.5,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        },
+        {
+          "severity": 1.0,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        }
+      ],
+      "spike_dropout": [
+        {
+          "severity": 0.5,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        },
+        {
+          "severity": 1.0,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        }
+      ],
+      "time_jitter": [
+        {
+          "severity": 0.5,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        },
+        {
+          "severity": 1.0,
+          "noisy_acc": 0.5984615384615385,
+          "restored_acc": 0.5984615384615385
+        }
+      ]
+    }
+  }
+}

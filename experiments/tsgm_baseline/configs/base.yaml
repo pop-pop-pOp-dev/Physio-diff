@@ -1,0 +1,43 @@
+project:
+  seed: 42
+  device: cuda
+  output_dir: experiments/tsgm_baseline/outputs
+
+data:
+  dataset_name: stress_predict
+  root_dir: ./data/WESAD
+  cache_dir: ./outputs/cache
+  processed_label_path: ./Stress-Predict-Dataset-main/Processed_data/Improved_All_Combined_hr_rsp_binary.csv
+  subjects: []
+  split_strategy: subject
+  train_subjects: [S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S13]
+  val_subjects: [S14, S15]
+  test_subjects: [S16, S17]
+  channels: [eda, bvp]
+  include_acc: true
+  target_fs: 64
+  window_length: 640
+  window_stride: 160
+  zscore: true
+  clip_mode: soft
+  clip_value: 5.0
+
+model:
+  d_model: 64
+  nhead: 4
+  num_layers: 2
+  z_dim: 32
+  num_classes: 2
+
+train:
+  epochs: 50
+  batch_size: 64
+  lr: 0.0005
+
+eval:
+  synth_samples_per_class: 1000
+  classifier_epochs: 30
+  classifier_lr: 0.001
+  classifier_batch: 64
+  noise_acc_std: 0.5
+  denoise_window: 9
